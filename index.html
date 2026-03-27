@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casa vs Acciones - Análisis Financiero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Mono', monospace;
+            background-color: #0a0a0f;
+            color: #e0e0e0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #c8a96e, #5eb8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #888;
+        }
+
+        .inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            color: #fff;
+            font-family: 'DM Mono', monospace;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #5eb8ff;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card h3 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .card.casa h3 {
+            color: #c8a96e;
+        }
+
+        .card.acciones h3 {
+            color: #5eb8ff;
+        }
+
+        .metric {
+            margin-bottom: 15px;
+        }
+
+        .metric-label {
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .winner {
+            background: rgba(94, 184, 255, 0.1);
+            border: 2px solid #5eb8ff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .winner h3 {
+            color: #5eb8ff;
+            margin-bottom: 10px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .pros-cons h3 {
+            margin-bottom: 15px;
+        }
+
+        .pros-cons ul {
+            list-style: none;
+        }
+
+        .pros-cons li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .pros-cons li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            font-size: 1.5rem;
+        }
+
+        .casa li:before {
+            color: #c8a96e;
+        }
+
+        .acciones li:before {
+            color: #5eb8ff;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .inputs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .results {
+                grid-template-columns: 1fr;
+            }
+
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Casa vs Acciones</h1>
+            <p class="subtitle">Análisis Financiero a 10, 15 y 30 años</p>
+        </header>
+
+        <div class="inputs-grid">
+            <div class="input-group">
+                <label>Precio Casa ($)</label>
+                <input type="number" id="precioC asa" value="249000">
+            </div>
+            <div class="input-group">
+                <label>Down Payment ($)</label>
+                <input type="number" id="downPayment" value="50000">
+            </div>
+            <div class="input-group">
+                <label>Tasa Hipoteca (%)</label>
+                <input type="number" id="tasaHipoteca" value="6.5" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>Apreciación Casa (%/año)</label>
+                <input type="number" id="apreciacionCasa" value="3.5" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>Retorno Acciones (%/año)</label>
+                <input type="number" id="retornoAcciones" value="10" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>Renta Mensual ($)</label>
+                <input type="number" id="rentaMensual" value="1700">
+            </div>
+        </div>
+
+        <div id="veredicto" class="winner">
+            <h3>Cargando análisis...</h3>
+        </div>
+
+        <div class="results">
+            <div class="card casa">
+                <h3>🏠 Casa</h3>
+                <div class="metric">
+                    <div class="metric-label">Pago Mensual</div>
+                    <div class="metric-value" id="pagoMensual">$0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Equity 10 años</div>
+                    <div class="metric-value" id="equity10">$0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Equity 15 años</div>
+                    <div class="metric-value" id="equity15">$0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Equity 30 años</div>
+                    <div class="metric-value" id="equity30">$0</div>
+                </div>
+            </div>
+
+            <div class="card acciones">
+                <h3>📈 Acciones</h3>
+                <div class="metric">
+                    <div class="metric-label">Inversión Inicial</div>
+                    <div class="metric-value" id="inversionInicial">$0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Patrimonio 10 años (neto renta)</div>
+                    <div class="metric-value" id="acciones10">$0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Patrimonio 15 años (neto renta)</div>
+                    <div class="metric-value" id="acciones15">$0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Patrimonio 30 años (neto renta)</div>
+                    <div class="metric-value" id="acciones30">$0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="chart"></canvas>
+        </div>
+
+        <div class="pros-cons">
+            <div class="card casa">
+                <h3>Pros Casa</h3>
+                <ul>
+                    <li>Control total sobre el activo</li>
+                    <li>No pagas renta (build equity)</li>
+                    <li>Beneficios fiscales (deducción intereses)</li>
+                    <li>Estabilidad emocional (hogar propio)</li>
+                    <li>Hedge contra inflación</li>
+                </ul>
+                <h3 style="margin-top: 30px;">Contras Casa</h3>
+                <ul>
+                    <li>Liquidez baja (vender toma tiempo)</li>
+                    <li>Costos mantenimiento (1-2% valor/año)</li>
+                    <li>Property taxes + seguros</li>
+                    <li>Down payment alto (capital inmovilizado)</li>
+                    <li>Riesgo concentrado (un solo activo)</li>
+                </ul>
+            </div>
+
+            <div class="card acciones">
+                <h3>Pros Acciones</h3>
+                <ul>
+                    <li>Liquidez alta (vender en minutos)</li>
+                    <li>Diversificación (ETFs = miles de empresas)</li>
+                    <li>Retorno histórico alto (~10%/año SP500)</li>
+                    <li>Sin mantenimiento ni property tax</li>
+                    <li>Flexibilidad geográfica (puedes moverte)</li>
+                </ul>
+                <h3 style="margin-top: 30px;">Contras Acciones</h3>
+                <ul>
+                    <li>Volatilidad (mercado sube/baja)</li>
+                    <li>Pagas renta (gasto mensual sin equity)</li>
+                    <li>Sin beneficios fiscales de hipoteca</li>
+                    <li>Requiere disciplina (no vender en pánico)</li>
+                    <li>Sin "hogar propio" (riesgo desalojo)</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>Análisis simplificado con fines educativos. No es asesoría financiera.</p>
+            <p>Creado por Inversionista del Futuro</p>
+        </footer>
+    </div>
+
+    <script>
+        let chart;
+
+        function formatCurrency(num) {
+            return '$' + num.toLocaleString('en-US', {maximumFractionDigits: 0});
+        }
+
+        function calcularHipoteca(precio, down, tasaAnual, anos) {
+            const principal = precio - down;
+            const tasaMensual = tasaAnual / 100 / 12;
+            const numPagos = anos * 12;
+            
+            const pagoMensual = principal * 
+                (tasaMensual * Math.pow(1 + tasaMensual, numPagos)) / 
+                (Math.pow(1 + tasaMensual, numPagos) - 1);
+            
+            return { pagoMensual, principal };
+        }
+
+        function calcularEquity(precio, down, tasaAnual, apreciacion, anos) {
+            const { principal } = calcularHipoteca(precio, down, tasaAnual, 30);
+            const tasaMensual = tasaAnual / 100 / 12;
+            const numPagos = anos * 12;
+            
+            // Calcular balance restante
+            let balance = principal;
+            for (let i = 0; i < numPagos; i++) {
+                const interes = balance * tasaMensual;
+                const { pagoMensual } = calcularHipoteca(precio, down, tasaAnual, 30);
+                const principalPagado = pagoMensual - interes;
+                balance -= principalPagado;
+            }
+            
+            // Valor de la casa con apreciación
+            const valorCasa = precio * Math.pow(1 + apreciacion / 100, anos);
+            
+            // Equity = valor casa - balance restante
+            const equity = valorCasa - balance;
+            
+            return { equity, valorCasa, balance };
+        }
+
+        function calcularAcciones(inversion, retornoAnual, rentaMensual, anos) {
+            // Invertir down payment inicialmente
+            // Ahorrar diferencia entre hipoteca y renta mensualmente
+            const valorFinal = inversion * Math.pow(1 + retornoAnual / 100, anos);
+            
+            // Descontar renta pagada durante años
+            const rentaTotal = rentaMensual * 12 * anos;
+            
+            return { valorFinal, rentaTotal, patrimonioNeto: valorFinal - rentaTotal };
+        }
+
+        function actualizarCalculos() {
+            const precio = parseFloat(document.getElementById('precioCasa').value);
+            const down = parseFloat(document.getElementById('downPayment').value);
+            const tasa = parseFloat(document.getElementById('tasaHipoteca').value);
+            const apreciacion = parseFloat(document.getElementById('apreciacionCasa').value);
+            const retorno = parseFloat(document.getElementById('retornoAcciones').value);
+            const renta = parseFloat(document.getElementById('rentaMensual').value);
+
+            // Casa
+            const { pagoMensual } = calcularHipoteca(precio, down, tasa, 30);
+            const eq10 = calcularEquity(precio, down, tasa, apreciacion, 10);
+            const eq15 = calcularEquity(precio, down, tasa, apreciacion, 15);
+            const eq30 = calcularEquity(precio, down, tasa, apreciacion, 30);
+
+            document.getElementById('pagoMensual').textContent = formatCurrency(pagoMensual);
+            document.getElementById('equity10').textContent = formatCurrency(eq10.equity);
+            document.getElementById('equity15').textContent = formatCurrency(eq15.equity);
+            document.getElementById('equity30').textContent = formatCurrency(eq30.equity);
+
+            // Acciones
+            const acc10 = calcularAcciones(down, retorno, renta, 10);
+            const acc15 = calcularAcciones(down, retorno, renta, 15);
+            const acc30 = calcularAcciones(down, retorno, renta, 30);
+
+            document.getElementById('inversionInicial').textContent = formatCurrency(down);
+            document.getElementById('acciones10').textContent = formatCurrency(acc10.patrimonioNeto);
+            document.getElementById('acciones15').textContent = formatCurrency(acc15.patrimonioNeto);
+            document.getElementById('acciones30').textContent = formatCurrency(acc30.patrimonioNeto);
+
+            // Veredicto
+            let veredictoHTML = '<h3>🏆 Veredicto</h3><div style="margin-top: 15px;">';
+            
+            if (eq10.equity > acc10.patrimonioNeto) {
+                veredictoHTML += '<p><strong>10 años:</strong> Casa gana por ' + formatCurrency(eq10.equity - acc10.patrimonioNeto) + '</p>';
+            } else {
+                veredictoHTML += '<p><strong>10 años:</strong> Acciones ganan por ' + formatCurrency(acc10.patrimonioNeto - eq10.equity) + '</p>';
+            }
+
+            if (eq15.equity > acc15.patrimonioNeto) {
+                veredictoHTML += '<p><strong>15 años:</strong> Casa gana por ' + formatCurrency(eq15.equity - acc15.patrimonioNeto) + '</p>';
+            } else {
+                veredictoHTML += '<p><strong>15 años:</strong> Acciones ganan por ' + formatCurrency(acc15.patrimonioNeto - eq15.equity) + '</p>';
+            }
+
+            if (eq30.equity > acc30.patrimonioNeto) {
+                veredictoHTML += '<p><strong>30 años:</strong> Casa gana por ' + formatCurrency(eq30.equity - acc30.patrimonioNeto) + '</p>';
+            } else {
+                veredictoHTML += '<p><strong>30 años:</strong> Acciones ganan por ' + formatCurrency(acc30.patrimonioNeto - eq30.equity) + '</p>';
+            }
+
+            veredictoHTML += '</div>';
+            document.getElementById('veredicto').innerHTML = veredictoHTML;
+
+            // Actualizar gráfica
+            actualizarGrafica(precio, down, tasa, apreciacion, retorno, renta);
+        }
+
+        function actualizarGrafica(precio, down, tasa, apreciacion, retorno, renta) {
+            const anos = Array.from({length: 31}, (_, i) => i);
+            
+            const equityCasa = anos.map(ano => {
+                if (ano === 0) return down;
+                const eq = calcularEquity(precio, down, tasa, apreciacion, ano);
+                return eq.equity;
+            });
+
+            const patrimonioAcciones = anos.map(ano => {
+                if (ano === 0) return down;
+                const acc = calcularAcciones(down, retorno, renta, ano);
+                return acc.patrimonioNeto;
+            });
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const ctx = document.getElementById('chart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: anos,
+                    datasets: [
+                        {
+                            label: 'Casa (Equity)',
+                            data: equityCasa,
+                            borderColor: '#c8a96e',
+                            backgroundColor: 'rgba(200, 169, 110, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Acciones (Neto Renta)',
+                            data: patrimonioAcciones,
+                            borderColor: '#5eb8ff',
+                            backgroundColor: 'rgba(94, 184, 255, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0',
+                                font: {
+                                    family: 'DM Mono'
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Patrimonio Neto a lo Largo del Tiempo',
+                            color: '#e0e0e0',
+                            font: {
+                                family: 'Playfair Display',
+                                size: 18
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#888',
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#888'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Años',
+                                color: '#aaa'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Event listeners
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', actualizarCalculos);
+        });
+
+        // Calcular al cargar
+        window.addEventListener('load', actualizarCalculos);
+    </script>
+</body>
+</html>
