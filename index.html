@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casa vs Acciones - Análisis Financiero</title>
+    <title>Casa vs Acciones - Análisis Financiero Completo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -32,7 +32,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -53,6 +53,12 @@
         .subtitle {
             font-size: 1rem;
             color: #888;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin: 40px 0 20px 0;
+            color: #c8a96e;
         }
 
         .inputs-grid {
@@ -134,10 +140,16 @@
             font-weight: 500;
         }
 
+        .metric-small {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
         .winner {
             background: rgba(94, 184, 255, 0.1);
             border: 2px solid #5eb8ff;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
             text-align: center;
             margin-bottom: 40px;
@@ -145,7 +157,16 @@
 
         .winner h3 {
             color: #5eb8ff;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+
+        .winner-detail {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            text-align: left;
         }
 
         .chart-container {
@@ -154,6 +175,34 @@
             border-radius: 8px;
             margin-bottom: 40px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .breakdown {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .breakdown h3 {
+            margin-bottom: 20px;
+            color: #c8a96e;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+            font-weight: 500;
+            padding-top: 20px;
+            margin-top: 10px;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         .pros-cons {
@@ -192,6 +241,35 @@
             color: #5eb8ff;
         }
 
+        .toggle-section {
+            margin-top: 30px;
+        }
+
+        .toggle-btn {
+            background: rgba(94, 184, 255, 0.1);
+            border: 1px solid #5eb8ff;
+            color: #5eb8ff;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(94, 184, 255, 0.2);
+        }
+
+        .toggle-content {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .toggle-content.active {
+            display: block;
+        }
+
         footer {
             text-align: center;
             padding: 40px 20px;
@@ -211,6 +289,10 @@
             .pros-cons {
                 grid-template-columns: 1fr;
             }
+
+            .winner-detail {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -218,9 +300,10 @@
     <div class="container">
         <header>
             <h1>Casa vs Acciones</h1>
-            <p class="subtitle">Análisis Financiero a 10, 15 y 30 años</p>
+            <p class="subtitle">Análisis Financiero Completo · Incluye todos los costos reales</p>
         </header>
 
+        <h2 class="section-title">💰 Escenario Casa</h2>
         <div class="inputs-grid">
             <div class="input-group">
                 <label>Precio Casa ($)</label>
@@ -239,57 +322,83 @@
                 <input type="number" id="apreciacionCasa" value="3.5" step="0.1">
             </div>
             <div class="input-group">
+                <label>Property Tax (%/año)</label>
+                <input type="number" id="propertyTax" value="1.2" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>Seguro Casa ($/año)</label>
+                <input type="number" id="seguroCasa" value="1500">
+            </div>
+            <div class="input-group">
+                <label>HOA/Mantenimiento ($/mes)</label>
+                <input type="number" id="hoaMantenimiento" value="200">
+            </div>
+            <div class="input-group">
+                <label>Closing Costs (% precio)</label>
+                <input type="number" id="closingCosts" value="3" step="0.1">
+            </div>
+        </div>
+
+        <h2 class="section-title">📈 Escenario Acciones</h2>
+        <div class="inputs-grid">
+            <div class="input-group">
                 <label>Retorno Acciones (%/año)</label>
                 <input type="number" id="retornoAcciones" value="10" step="0.1">
             </div>
             <div class="input-group">
-                <label>Renta Mensual ($)</label>
+                <label>Renta Inicial ($/mes)</label>
                 <input type="number" id="rentaMensual" value="1700">
+            </div>
+            <div class="input-group">
+                <label>Inflación Renta (%/año)</label>
+                <input type="number" id="inflacionRenta" value="3" step="0.1">
+            </div>
+            <div class="input-group">
+                <label>Tasa Impuestos (%)</label>
+                <input type="number" id="tasaImpuestos" value="24" step="1">
             </div>
         </div>
 
         <div id="veredicto" class="winner">
-            <h3>Cargando análisis...</h3>
+            <h3>Calculando...</h3>
         </div>
 
         <div class="results">
             <div class="card casa">
-                <h3>🏠 Casa</h3>
+                <h3>🏠 Casa - Costos Reales</h3>
                 <div class="metric">
-                    <div class="metric-label">Pago Mensual</div>
-                    <div class="metric-value" id="pagoMensual">$0</div>
+                    <div class="metric-label">Pago Mensual Total</div>
+                    <div class="metric-value" id="pagoMensualTotal">$0</div>
+                    <div class="metric-small" id="desglosePago"></div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Equity 10 años</div>
-                    <div class="metric-value" id="equity10">$0</div>
+                    <div class="metric-label">Inversión Inicial Real</div>
+                    <div class="metric-value" id="inversionInicialCasa">$0</div>
+                    <div class="metric-small">Down + closing costs</div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Equity 15 años</div>
-                    <div class="metric-value" id="equity15">$0</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Equity 30 años</div>
+                    <div class="metric-label">Patrimonio Neto 30 años</div>
                     <div class="metric-value" id="equity30">$0</div>
+                    <div class="metric-small" id="costosTotalesCasa"></div>
                 </div>
             </div>
 
             <div class="card acciones">
-                <h3>📈 Acciones</h3>
+                <h3>📈 Acciones - Retorno Real</h3>
                 <div class="metric">
-                    <div class="metric-label">Inversión Inicial</div>
-                    <div class="metric-value" id="inversionInicial">$0</div>
+                    <div class="metric-label">Inversión + Ahorro Mensual</div>
+                    <div class="metric-value" id="inversionTotal">$0</div>
+                    <div class="metric-small" id="ahorroMensual"></div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Patrimonio 10 años (neto renta)</div>
-                    <div class="metric-value" id="acciones10">$0</div>
+                    <div class="metric-label">Renta Pagada 30 años</div>
+                    <div class="metric-value" id="rentaTotal30">$0</div>
+                    <div class="metric-small">Con inflación 3%/año</div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Patrimonio 15 años (neto renta)</div>
-                    <div class="metric-value" id="acciones15">$0</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Patrimonio 30 años (neto renta)</div>
+                    <div class="metric-label">Patrimonio Neto 30 años</div>
                     <div class="metric-value" id="acciones30">$0</div>
+                    <div class="metric-small" id="retornoTotal"></div>
                 </div>
             </div>
         </div>
@@ -298,23 +407,45 @@
             <canvas id="chart"></canvas>
         </div>
 
+        <div class="toggle-section">
+            <button class="toggle-btn" onclick="toggleBreakdown()">
+                📊 Ver Breakdown Detallado de Costos
+            </button>
+            <div id="breakdownContent" class="toggle-content">
+                <div class="breakdown">
+                    <h3>Casa - Costos Año a Año (30 años)</h3>
+                    <div id="breakdownCasa"></div>
+                </div>
+                <div class="breakdown">
+                    <h3>Acciones - Flujos Año a Año (30 años)</h3>
+                    <div id="breakdownAcciones"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="chartCostos"></canvas>
+        </div>
+
         <div class="pros-cons">
             <div class="card casa">
                 <h3>Pros Casa</h3>
                 <ul>
                     <li>Control total sobre el activo</li>
                     <li>No pagas renta (build equity)</li>
-                    <li>Beneficios fiscales (deducción intereses)</li>
+                    <li>Deducción fiscal intereses hipoteca</li>
                     <li>Estabilidad emocional (hogar propio)</li>
                     <li>Hedge contra inflación</li>
+                    <li>Apalancamiento (compras $249K con $50K)</li>
                 </ul>
                 <h3 style="margin-top: 30px;">Contras Casa</h3>
                 <ul>
-                    <li>Liquidez baja (vender toma tiempo)</li>
-                    <li>Costos mantenimiento (1-2% valor/año)</li>
-                    <li>Property taxes + seguros</li>
-                    <li>Down payment alto (capital inmovilizado)</li>
+                    <li>Liquidez baja (vender toma 2-6 meses)</li>
+                    <li>Costos ocultos: taxes, seguro, HOA, reparaciones</li>
+                    <li>Pago mensual fijo + costos variables</li>
                     <li>Riesgo concentrado (un solo activo)</li>
+                    <li>Costos transacción altos (3-9% compra/venta)</li>
+                    <li>Requiere mantenimiento continuo</li>
                 </ul>
             </div>
 
@@ -323,38 +454,47 @@
                 <ul>
                     <li>Liquidez alta (vender en minutos)</li>
                     <li>Diversificación (ETFs = miles de empresas)</li>
-                    <li>Retorno histórico alto (~10%/año SP500)</li>
-                    <li>Sin mantenimiento ni property tax</li>
-                    <li>Flexibilidad geográfica (puedes moverte)</li>
+                    <li>Retorno histórico ~10%/año (SP500)</li>
+                    <li>Cero mantenimiento, taxes o seguros</li>
+                    <li>Flexibilidad geográfica total</li>
+                    <li>Contribuciones flexibles (puedes ajustar)</li>
+                    <li>Reinversión automática de dividendos</li>
                 </ul>
                 <h3 style="margin-top: 30px;">Contras Acciones</h3>
                 <ul>
-                    <li>Volatilidad (mercado sube/baja)</li>
-                    <li>Pagas renta (gasto mensual sin equity)</li>
-                    <li>Sin beneficios fiscales de hipoteca</li>
+                    <li>Volatilidad (mercado sube/baja 20-30%)</li>
+                    <li>Pagas renta (gasto sin equity)</li>
+                    <li>Renta sube con inflación</li>
+                    <li>Sin deducción fiscal</li>
                     <li>Requiere disciplina (no vender en pánico)</li>
                     <li>Sin "hogar propio" (riesgo desalojo)</li>
+                    <li>Impuestos sobre ganancias de capital</li>
                 </ul>
             </div>
         </div>
 
         <footer>
-            <p>Análisis simplificado con fines educativos. No es asesoría financiera.</p>
-            <p>Creado por Inversionista del Futuro</p>
+            <p>Análisis simplificado con fines educativos. Consulta un asesor financiero certificado.</p>
+            <p>Creado por Inversionista del Futuro · Todos los costos reales incluidos</p>
         </footer>
     </div>
 
     <script>
-        let chart;
+        let chart, chartCostos;
+
+        function toggleBreakdown() {
+            const content = document.getElementById('breakdownContent');
+            content.classList.toggle('active');
+        }
 
         function formatCurrency(num) {
             return '$' + num.toLocaleString('en-US', {maximumFractionDigits: 0});
         }
 
-        function calcularHipoteca(precio, down, tasaAnual, anos) {
+        function calcularHipoteca(precio, down, tasaAnual) {
             const principal = precio - down;
             const tasaMensual = tasaAnual / 100 / 12;
-            const numPagos = anos * 12;
+            const numPagos = 30 * 12;
             
             const pagoMensual = principal * 
                 (tasaMensual * Math.pow(1 + tasaMensual, numPagos)) / 
@@ -363,38 +503,85 @@
             return { pagoMensual, principal };
         }
 
-        function calcularEquity(precio, down, tasaAnual, apreciacion, anos) {
-            const { principal } = calcularHipoteca(precio, down, tasaAnual, 30);
+        function calcularEquity(precio, down, tasaAnual, apreciacion, propertyTaxRate, seguroAnual, hoaMes, anos) {
+            const { principal } = calcularHipoteca(precio, down, tasaAnual);
             const tasaMensual = tasaAnual / 100 / 12;
             const numPagos = anos * 12;
             
-            // Calcular balance restante
+            // Calcular balance restante después de N años
             let balance = principal;
+            let totalInteresesPagados = 0;
+            
             for (let i = 0; i < numPagos; i++) {
                 const interes = balance * tasaMensual;
-                const { pagoMensual } = calcularHipoteca(precio, down, tasaAnual, 30);
+                const { pagoMensual } = calcularHipoteca(precio, down, tasaAnual);
                 const principalPagado = pagoMensual - interes;
                 balance -= principalPagado;
+                totalInteresesPagados += interes;
             }
             
             // Valor de la casa con apreciación
             const valorCasa = precio * Math.pow(1 + apreciacion / 100, anos);
             
-            // Equity = valor casa - balance restante
-            const equity = valorCasa - balance;
+            // Costos acumulados
+            let costosTotales = 0;
+            for (let ano = 1; ano <= anos; ano++) {
+                const valorCasaAno = precio * Math.pow(1 + apreciacion / 100, ano);
+                const propertyTaxAno = valorCasaAno * (propertyTaxRate / 100);
+                costosTotales += propertyTaxAno + seguroAnual + (hoaMes * 12);
+            }
             
-            return { equity, valorCasa, balance };
+            // Equity neto = valor casa - balance hipoteca - costos acumulados
+            const equityBruto = valorCasa - balance;
+            const equityNeto = equityBruto - costosTotales;
+            
+            return { 
+                equity: equityNeto, 
+                valorCasa, 
+                balance, 
+                costosTotales,
+                totalInteresesPagados,
+                equityBruto
+            };
         }
 
-        function calcularAcciones(inversion, retornoAnual, rentaMensual, anos) {
-            // Invertir down payment inicialmente
-            // Ahorrar diferencia entre hipoteca y renta mensualmente
-            const valorFinal = inversion * Math.pow(1 + retornoAnual / 100, anos);
+        function calcularAcciones(down, closingCosts, pagoMensualCasa, rentaInicial, inflacionRenta, retornoAnual, anos) {
+            // Inversión inicial = down payment que no gastaste + closing costs ahorrados
+            let valorPortafolio = down + closingCosts;
             
-            // Descontar renta pagada durante años
-            const rentaTotal = rentaMensual * 12 * anos;
+            // Ahorro mensual = diferencia entre pago casa y renta
+            let rentaMensual = rentaInicial;
+            let totalRentaPagada = 0;
+            let totalInvertido = down + closingCosts;
             
-            return { valorFinal, rentaTotal, patrimonioNeto: valorFinal - rentaTotal };
+            for (let ano = 1; ano <= anos; ano++) {
+                // Actualizar renta por inflación
+                rentaMensual = rentaInicial * Math.pow(1 + inflacionRenta / 100, ano);
+                
+                // Calcular ahorro mensual (si pago casa > renta, inviertes la diferencia)
+                const ahorroMensual = Math.max(0, pagoMensualCasa - rentaMensual);
+                
+                // Invertir ahorro mensual
+                for (let mes = 1; mes <= 12; mes++) {
+                    valorPortafolio += ahorroMensual;
+                    totalInvertido += ahorroMensual;
+                }
+                
+                // Aplicar retorno anual
+                valorPortafolio *= (1 + retornoAnual / 100);
+                
+                // Acumular renta pagada
+                totalRentaPagada += rentaMensual * 12;
+            }
+            
+            // Patrimonio neto = valor portafolio (ya incluye inversión + retornos)
+            // NO restamos renta porque esa ya es un gasto consumido
+            return { 
+                valorFinal: valorPortafolio, 
+                totalRentaPagada,
+                patrimonioNeto: valorPortafolio,
+                totalInvertido
+            };
         }
 
         function actualizarCalculos() {
@@ -402,77 +589,121 @@
             const down = parseFloat(document.getElementById('downPayment').value);
             const tasa = parseFloat(document.getElementById('tasaHipoteca').value);
             const apreciacion = parseFloat(document.getElementById('apreciacionCasa').value);
+            const propertyTax = parseFloat(document.getElementById('propertyTax').value);
+            const seguro = parseFloat(document.getElementById('seguroCasa').value);
+            const hoaMant = parseFloat(document.getElementById('hoaMantenimiento').value);
+            const closingPct = parseFloat(document.getElementById('closingCosts').value);
             const retorno = parseFloat(document.getElementById('retornoAcciones').value);
             const renta = parseFloat(document.getElementById('rentaMensual').value);
+            const inflacionRenta = parseFloat(document.getElementById('inflacionRenta').value);
+
+            const closingCostsTotal = precio * (closingPct / 100);
+            const inversionInicialCasa = down + closingCostsTotal;
 
             // Casa
-            const { pagoMensual } = calcularHipoteca(precio, down, tasa, 30);
-            const eq10 = calcularEquity(precio, down, tasa, apreciacion, 10);
-            const eq15 = calcularEquity(precio, down, tasa, apreciacion, 15);
-            const eq30 = calcularEquity(precio, down, tasa, apreciacion, 30);
+            const { pagoMensual } = calcularHipoteca(precio, down, tasa);
+            const propertyTaxMensual = (precio * (propertyTax / 100)) / 12;
+            const seguroMensual = seguro / 12;
+            const pagoMensualTotal = pagoMensual + propertyTaxMensual + seguroMensual + hoaMant;
 
-            document.getElementById('pagoMensual').textContent = formatCurrency(pagoMensual);
-            document.getElementById('equity10').textContent = formatCurrency(eq10.equity);
-            document.getElementById('equity15').textContent = formatCurrency(eq15.equity);
+            const eq30 = calcularEquity(precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, 30);
+
+            document.getElementById('pagoMensualTotal').textContent = formatCurrency(pagoMensualTotal);
+            document.getElementById('desglosePago').textContent = 
+                `Hipoteca ${formatCurrency(pagoMensual)} + Taxes ${formatCurrency(propertyTaxMensual)} + Seguro ${formatCurrency(seguroMensual)} + HOA/Mant ${formatCurrency(hoaMant)}`;
+            
+            document.getElementById('inversionInicialCasa').textContent = formatCurrency(inversionInicialCasa);
             document.getElementById('equity30').textContent = formatCurrency(eq30.equity);
+            document.getElementById('costosTotalesCasa').textContent = 
+                `Valor casa ${formatCurrency(eq30.valorCasa)} - Costos ${formatCurrency(eq30.costosTotales)} - Balance ${formatCurrency(eq30.balance)}`;
 
             // Acciones
-            const acc10 = calcularAcciones(down, retorno, renta, 10);
-            const acc15 = calcularAcciones(down, retorno, renta, 15);
-            const acc30 = calcularAcciones(down, retorno, renta, 30);
+            const acc30 = calcularAcciones(down, closingCostsTotal, pagoMensualTotal, renta, inflacionRenta, retorno, 30);
 
-            document.getElementById('inversionInicial').textContent = formatCurrency(down);
-            document.getElementById('acciones10').textContent = formatCurrency(acc10.patrimonioNeto);
-            document.getElementById('acciones15').textContent = formatCurrency(acc15.patrimonioNeto);
+            const ahorroMensualPromedio = pagoMensualTotal - renta;
+            document.getElementById('inversionTotal').textContent = formatCurrency(down + closingCostsTotal);
+            document.getElementById('ahorroMensual').textContent = 
+                ahorroMensualPromedio > 0 
+                    ? `+ ${formatCurrency(ahorroMensualPromedio)}/mes promedio invertido`
+                    : `Renta inicial menor que pago casa`;
+            
+            document.getElementById('rentaTotal30').textContent = formatCurrency(acc30.totalRentaPagada);
             document.getElementById('acciones30').textContent = formatCurrency(acc30.patrimonioNeto);
+            document.getElementById('retornoTotal').textContent = 
+                `Invertido ${formatCurrency(acc30.totalInvertido)} → Retorno total ${formatCurrency(acc30.valorFinal - acc30.totalInvertido)}`;
 
             // Veredicto
-            let veredictoHTML = '<h3>🏆 Veredicto</h3><div style="margin-top: 15px;">';
+            const diferencia = acc30.patrimonioNeto - eq30.equity;
+            const ganador = diferencia > 0 ? 'Acciones' : 'Casa';
+            const colorGanador = diferencia > 0 ? '#5eb8ff' : '#c8a96e';
             
-            if (eq10.equity > acc10.patrimonioNeto) {
-                veredictoHTML += '<p><strong>10 años:</strong> Casa gana por ' + formatCurrency(eq10.equity - acc10.patrimonioNeto) + '</p>';
-            } else {
-                veredictoHTML += '<p><strong>10 años:</strong> Acciones ganan por ' + formatCurrency(acc10.patrimonioNeto - eq10.equity) + '</p>';
-            }
-
-            if (eq15.equity > acc15.patrimonioNeto) {
-                veredictoHTML += '<p><strong>15 años:</strong> Casa gana por ' + formatCurrency(eq15.equity - acc15.patrimonioNeto) + '</p>';
-            } else {
-                veredictoHTML += '<p><strong>15 años:</strong> Acciones ganan por ' + formatCurrency(acc15.patrimonioNeto - eq15.equity) + '</p>';
-            }
-
-            if (eq30.equity > acc30.patrimonioNeto) {
-                veredictoHTML += '<p><strong>30 años:</strong> Casa gana por ' + formatCurrency(eq30.equity - acc30.patrimonioNeto) + '</p>';
-            } else {
-                veredictoHTML += '<p><strong>30 años:</strong> Acciones ganan por ' + formatCurrency(acc30.patrimonioNeto - eq30.equity) + '</p>';
-            }
-
-            veredictoHTML += '</div>';
+            let veredictoHTML = `
+                <h3 style="color: ${colorGanador}">🏆 ${ganador} gana por ${formatCurrency(Math.abs(diferencia))}</h3>
+                <div class="winner-detail">
+                    <div>
+                        <strong>Casa:</strong><br>
+                        Patrimonio Neto: ${formatCurrency(eq30.equity)}<br>
+                        <span style="font-size: 0.9rem; color: #888;">
+                            (Valor ${formatCurrency(eq30.valorCasa)} - Balance ${formatCurrency(eq30.balance)} - Costos ${formatCurrency(eq30.costosTotales)})
+                        </span>
+                    </div>
+                    <div>
+                        <strong>Acciones:</strong><br>
+                        Patrimonio Neto: ${formatCurrency(acc30.patrimonioNeto)}<br>
+                        <span style="font-size: 0.9rem; color: #888;">
+                            (Invertido ${formatCurrency(acc30.totalInvertido)} + Retorno ${formatCurrency(acc30.valorFinal - acc30.totalInvertido)})
+                        </span>
+                    </div>
+                    <div>
+                        <strong>Costo Oportunidad:</strong><br>
+                        ${diferencia > 0 ? 'Comprar casa te cuesta' : 'Rentar te cuesta'} ${formatCurrency(Math.abs(diferencia))}<br>
+                        <span style="font-size: 0.9rem; color: #888;">
+                            en 30 años vs la otra opción
+                        </span>
+                    </div>
+                </div>
+            `;
             document.getElementById('veredicto').innerHTML = veredictoHTML;
 
-            // Actualizar gráfica
-            actualizarGrafica(precio, down, tasa, apreciacion, retorno, renta);
+            // Actualizar gráficas
+            actualizarGraficas(precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, closingCostsTotal, pagoMensualTotal, retorno, renta, inflacionRenta);
         }
 
-        function actualizarGrafica(precio, down, tasa, apreciacion, retorno, renta) {
+        function actualizarGraficas(precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, closingCosts, pagoMensualCasa, retorno, rentaInicial, inflacionRenta) {
             const anos = Array.from({length: 31}, (_, i) => i);
             
+            // Patrimonio neto año a año
             const equityCasa = anos.map(ano => {
-                if (ano === 0) return down;
-                const eq = calcularEquity(precio, down, tasa, apreciacion, ano);
+                if (ano === 0) return down - closingCosts;
+                const eq = calcularEquity(precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, ano);
                 return eq.equity;
             });
 
             const patrimonioAcciones = anos.map(ano => {
-                if (ano === 0) return down;
-                const acc = calcularAcciones(down, retorno, renta, ano);
+                if (ano === 0) return down + closingCosts;
+                const acc = calcularAcciones(down, closingCosts, pagoMensualCasa, rentaInicial, inflacionRenta, retorno, ano);
                 return acc.patrimonioNeto;
             });
 
-            if (chart) {
-                chart.destroy();
-            }
+            // Costos acumulados
+            const costosAcumuladosCasa = anos.map(ano => {
+                if (ano === 0) return closingCosts;
+                const eq = calcularEquity(precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, ano);
+                return eq.costosTotales + eq.totalInteresesPagados + closingCosts;
+            });
 
+            const rentaAcumulada = anos.map(ano => {
+                if (ano === 0) return 0;
+                let total = 0;
+                for (let a = 1; a <= ano; a++) {
+                    const rentaAno = rentaInicial * Math.pow(1 + inflacionRenta / 100, a);
+                    total += rentaAno * 12;
+                }
+                return total;
+            });
+
+            // Gráfica patrimonio
+            if (chart) chart.destroy();
             const ctx = document.getElementById('chart').getContext('2d');
             chart = new Chart(ctx, {
                 type: 'line',
@@ -480,18 +711,20 @@
                     labels: anos,
                     datasets: [
                         {
-                            label: 'Casa (Equity)',
+                            label: 'Casa (Patrimonio Neto)',
                             data: equityCasa,
                             borderColor: '#c8a96e',
                             backgroundColor: 'rgba(200, 169, 110, 0.1)',
-                            tension: 0.4
+                            tension: 0.4,
+                            borderWidth: 3
                         },
                         {
-                            label: 'Acciones (Neto Renta)',
+                            label: 'Acciones (Patrimonio Neto)',
                             data: patrimonioAcciones,
                             borderColor: '#5eb8ff',
                             backgroundColor: 'rgba(94, 184, 255, 0.1)',
-                            tension: 0.4
+                            tension: 0.4,
+                            borderWidth: 3
                         }
                     ]
                 },
@@ -502,19 +735,14 @@
                         legend: {
                             labels: {
                                 color: '#e0e0e0',
-                                font: {
-                                    family: 'DM Mono'
-                                }
+                                font: { family: 'DM Mono', size: 14 }
                             }
                         },
                         title: {
                             display: true,
-                            text: 'Patrimonio Neto a lo Largo del Tiempo',
+                            text: 'Patrimonio Neto Real a lo Largo del Tiempo',
                             color: '#e0e0e0',
-                            font: {
-                                family: 'Playfair Display',
-                                size: 18
-                            }
+                            font: { family: 'Playfair Display', size: 20 }
                         }
                     },
                     scales: {
@@ -525,17 +753,77 @@
                                     return '$' + (value / 1000).toFixed(0) + 'K';
                                 }
                             },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.05)'
-                            }
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
                         },
                         x: {
+                            ticks: { color: '#888' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            title: {
+                                display: true,
+                                text: 'Años',
+                                color: '#aaa'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfica costos acumulados
+            if (chartCostos) chartCostos.destroy();
+            const ctxCostos = document.getElementById('chartCostos').getContext('2d');
+            chartCostos = new Chart(ctxCostos, {
+                type: 'line',
+                data: {
+                    labels: anos,
+                    datasets: [
+                        {
+                            label: 'Casa - Costos Acumulados',
+                            data: costosAcumuladosCasa,
+                            borderColor: '#c8a96e',
+                            backgroundColor: 'rgba(200, 169, 110, 0.1)',
+                            tension: 0.4,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Acciones - Renta Acumulada',
+                            data: rentaAcumulada,
+                            borderColor: '#5eb8ff',
+                            backgroundColor: 'rgba(94, 184, 255, 0.1)',
+                            tension: 0.4,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0',
+                                font: { family: 'DM Mono', size: 14 }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Comparación de Costos Acumulados',
+                            color: '#e0e0e0',
+                            font: { family: 'Playfair Display', size: 20 }
+                        }
+                    },
+                    scales: {
+                        y: {
                             ticks: {
-                                color: '#888'
+                                color: '#888',
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
                             },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.05)'
-                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#888' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
                             title: {
                                 display: true,
                                 text: 'Años',
