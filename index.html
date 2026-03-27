@@ -90,6 +90,43 @@
             transform: translateY(-2px);
         }
 
+        .recalcular-btn {
+            background: linear-gradient(135deg, #5eb8ff, #3a9aed);
+            border: none;
+            color: #fff;
+            padding: 18px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'DM Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(94, 184, 255, 0.3);
+            width: 100%;
+            max-width: 400px;
+            margin: 30px auto;
+            display: block;
+        }
+
+        .recalcular-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(94, 184, 255, 0.4);
+            background: linear-gradient(135deg, #6ec5ff, #4aa9f5);
+        }
+
+        .recalcular-btn:active {
+            transform: translateY(-1px);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(94, 184, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 4px 25px rgba(94, 184, 255, 0.6);
+            }
+        }
+
         .section-title {
             font-size: 1.5rem;
             margin: 40px 0 20px 0;
@@ -436,7 +473,7 @@
         </header>
 
         <div class="interactive-notice">
-            ⚡ <strong>Herramienta 100% Interactiva</strong> · Cambia cualquier valor y todo se recalcula automáticamente en tiempo real
+            ⚡ <strong>Herramienta 100% Interactiva</strong> · Cambia cualquier valor y presiona "Recalcular Análisis" para ver los resultados actualizados
         </div>
 
         <div class="presets">
@@ -503,8 +540,12 @@
             </div>
         </div>
 
+        <button class="recalcular-btn" onclick="actualizarCalculos()">
+            🔄 Recalcular Análisis
+        </button>
+
         <div id="veredicto" class="winner">
-            <h3>Calculando...</h3>
+            <h3>Ajusta los valores arriba y presiona "Recalcular"</h3>
         </div>
 
         <div class="timeline-comparison">
@@ -1214,10 +1255,27 @@
             }, 100);
         }
 
-        // Event listeners
+        // Event listeners para mostrar que valores cambiaron
+        let valoresCambiados = false;
+        
         document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', actualizarCalculos);
+            input.addEventListener('input', () => {
+                valoresCambiados = true;
+                const btn = document.querySelector('.recalcular-btn');
+                btn.style.animation = 'pulse 1.5s infinite';
+                btn.innerHTML = '⚡ Recalcular Análisis (valores modificados)';
+            });
         });
+
+        // Modificar función de recalcular para resetear estado
+        const actualizarCalculosOriginal = actualizarCalculos;
+        actualizarCalculos = function() {
+            actualizarCalculosOriginal();
+            valoresCambiados = false;
+            const btn = document.querySelector('.recalcular-btn');
+            btn.style.animation = '';
+            btn.innerHTML = '🔄 Recalcular Análisis';
+        };
 
         // Calcular al cargar
         window.addEventListener('load', actualizarCalculos);
