@@ -648,39 +648,43 @@
         function calcularAcciones(down, closingCosts, pagoMensualCasa, rentaInicial, inflacionRenta, retornoAnual, anos) {
             // Inversión inicial = down payment que no gastaste + closing costs ahorrados
             let valorPortafolio = down + closingCosts;
-            
-            // Ahorro mensual = diferencia entre pago casa y renta
-            let rentaMensual = rentaInicial;
             let totalRentaPagada = 0;
             let totalInvertido = down + closingCosts;
+            let totalAhorroInvertido = 0;
             
-            for (let ano = 1; ano <= anos; ano++) {
-                // Actualizar renta por inflación
-                rentaMensual = rentaInicial * Math.pow(1 + inflacionRenta / 100, ano);
+            // Calcular mes a mes para mayor precisión
+            const retornoMensual = retornoAnual / 100 / 12;
+            
+            for (let mes = 1; mes <= anos * 12; mes++) {
+                // Calcular año actual (para inflación de renta)
+                const anoActual = Math.floor((mes - 1) / 12);
                 
-                // Calcular ahorro mensual (si pago casa > renta, inviertes la diferencia)
+                // Renta del mes actual (con inflación anual compuesta)
+                const rentaMensual = rentaInicial * Math.pow(1 + inflacionRenta / 100, anoActual);
+                
+                // Ahorro mensual = diferencia (solo si pago casa > renta)
                 const ahorroMensual = Math.max(0, pagoMensualCasa - rentaMensual);
                 
-                // Invertir ahorro mensual
-                for (let mes = 1; mes <= 12; mes++) {
+                // Invertir ahorro si existe
+                if (ahorroMensual > 0) {
                     valorPortafolio += ahorroMensual;
                     totalInvertido += ahorroMensual;
+                    totalAhorroInvertido += ahorroMensual;
                 }
                 
-                // Aplicar retorno anual
-                valorPortafolio *= (1 + retornoAnual / 100);
+                // Aplicar retorno mensual compuesto
+                valorPortafolio *= (1 + retornoMensual);
                 
                 // Acumular renta pagada
-                totalRentaPagada += rentaMensual * 12;
+                totalRentaPagada += rentaMensual;
             }
             
-            // Patrimonio neto = valor portafolio (ya incluye inversión + retornos)
-            // NO restamos renta porque esa ya es un gasto consumido
             return { 
                 valorFinal: valorPortafolio, 
                 totalRentaPagada,
                 patrimonioNeto: valorPortafolio,
-                totalInvertido
+                totalInvertido,
+                totalAhorroInvertido
             };
         }
 
@@ -735,7 +739,7 @@
                     </div>
                     <div class="comparison-row">
                         <span class="comparison-label">Ahorro Invertido</span>
-                        <span class="comparison-value acciones">${formatCurrency(acc.totalInvertido - (down + closingCosts))}</span>
+                        <span class="comparison-value acciones">${formatCurrency(acc.totalAhorroInvertido)}</span>
                     </div>
                     <div class="comparison-row">
                         <span class="comparison-label">Total Invertido</span>
@@ -810,12 +814,20 @@
             // Acciones
             const acc30 = calcularAcciones(down, closingCostsTotal, pagoMensualTotal, renta, inflacionRenta, retorno, 30);
 
-            const ahorroMensualPromedio = pagoMensualTotal - renta;
+            // Calcular cuántos meses se pudo ahorrar
+            let mesesAhorro = 0;
+            for (let mes = 1; mes <= 30 * 12; mes++) {
+                const anoActual = Math.floor((mes - 1) / 12);
+                const rentaMes = renta * Math.pow(1 + inflacionRenta / 100, anoActual);
+                if (pagoMensualTotal > rentaMes) mesesAhorro++;
+                else break;
+            }
+
             document.getElementById('inversionTotal').textContent = formatCurrency(down + closingCostsTotal);
             document.getElementById('ahorroMensual').textContent = 
-                ahorroMensualPromedio > 0 
-                    ? `+ ${formatCurrency(ahorroMensualPromedio)}/mes promedio invertido`
-                    : `Renta inicial menor que pago casa`;
+                acc30.totalAhorroInvertido > 0 
+                    ? `+ ${formatCurrency(acc30.totalAhorroInvertido)} ahorrados (${mesesAhorro} meses). Después renta > pago casa.`
+                    : `Renta inicial ya es mayor que pago casa`;
             
             document.getElementById('rentaTotal30').textContent = formatCurrency(acc30.totalRentaPagada);
             document.getElementById('acciones30').textContent = formatCurrency(acc30.patrimonioNeto);
