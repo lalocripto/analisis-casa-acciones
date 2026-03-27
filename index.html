@@ -55,6 +55,41 @@
             color: #888;
         }
 
+        .interactive-notice {
+            background: rgba(94, 184, 255, 0.1);
+            border: 1px solid #5eb8ff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            color: #5eb8ff;
+        }
+
+        .presets {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .preset-btn {
+            background: rgba(200, 169, 110, 0.1);
+            border: 1px solid #c8a96e;
+            color: #c8a96e;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover {
+            background: rgba(200, 169, 110, 0.2);
+            transform: translateY(-2px);
+        }
+
         .section-title {
             font-size: 1.5rem;
             margin: 40px 0 20px 0;
@@ -91,11 +126,24 @@
             color: #fff;
             font-family: 'DM Mono', monospace;
             font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(94, 184, 255, 0.5);
         }
 
         input:focus {
             outline: none;
             border-color: #5eb8ff;
+            background: rgba(94, 184, 255, 0.05);
+            box-shadow: 0 0 0 3px rgba(94, 184, 255, 0.1);
+        }
+
+        .calculating {
+            opacity: 0.6;
+            pointer-events: none;
         }
 
         .results {
@@ -387,23 +435,35 @@
             <p class="subtitle">Análisis Financiero Completo · Incluye todos los costos reales</p>
         </header>
 
+        <div class="interactive-notice">
+            ⚡ <strong>Herramienta 100% Interactiva</strong> · Cambia cualquier valor y todo se recalcula automáticamente en tiempo real
+        </div>
+
+        <div class="presets">
+            <button class="preset-btn" onclick="cargarPreset('default')">📊 Default</button>
+            <button class="preset-btn" onclick="cargarPreset('barato')">💰 Casa Barata</button>
+            <button class="preset-btn" onclick="cargarPreset('caro')">🏰 Casa Cara</button>
+            <button class="preset-btn" onclick="cargarPreset('bajista')">📉 Mercado Bajista</button>
+            <button class="preset-btn" onclick="cargarPreset('optimista')">🚀 Bull Market</button>
+        </div>
+
         <h2 class="section-title">💰 Escenario Casa</h2>
         <div class="inputs-grid">
             <div class="input-group">
-                <label>Precio Casa ($)</label>
-                <input type="number" id="precioCasa" value="249000">
+                <label>Precio Casa ($) <span style="color: #666;">· Valor total de la propiedad</span></label>
+                <input type="number" id="precioCasa" value="249000" placeholder="Ej: 249000">
             </div>
             <div class="input-group">
-                <label>Down Payment ($)</label>
-                <input type="number" id="downPayment" value="50000">
+                <label>Down Payment ($) <span style="color: #666;">· Pago inicial</span></label>
+                <input type="number" id="downPayment" value="50000" placeholder="Ej: 50000">
             </div>
             <div class="input-group">
-                <label>Tasa Hipoteca (%)</label>
-                <input type="number" id="tasaHipoteca" value="6.5" step="0.1">
+                <label>Tasa Hipoteca (%) <span style="color: #666;">· Interés anual</span></label>
+                <input type="number" id="tasaHipoteca" value="6.5" step="0.1" placeholder="Ej: 6.5">
             </div>
             <div class="input-group">
-                <label>Apreciación Casa (%/año)</label>
-                <input type="number" id="apreciacionCasa" value="3.5" step="0.1">
+                <label>Apreciación Casa (%/año) <span style="color: #666;">· Cuánto sube el valor</span></label>
+                <input type="number" id="apreciacionCasa" value="3.5" step="0.1" placeholder="Ej: 3.5">
             </div>
             <div class="input-group">
                 <label>Property Tax (%/año)</label>
@@ -426,16 +486,16 @@
         <h2 class="section-title">📈 Escenario Acciones</h2>
         <div class="inputs-grid">
             <div class="input-group">
-                <label>Retorno Acciones (%/año)</label>
-                <input type="number" id="retornoAcciones" value="10" step="0.1">
+                <label>Retorno Acciones (%/año) <span style="color: #666;">· SP500 histórico ~10%</span></label>
+                <input type="number" id="retornoAcciones" value="10" step="0.1" placeholder="Ej: 10">
             </div>
             <div class="input-group">
-                <label>Renta Inicial ($/mes)</label>
-                <input type="number" id="rentaMensual" value="1700">
+                <label>Renta Inicial ($/mes) <span style="color: #666;">· Primer mes</span></label>
+                <input type="number" id="rentaMensual" value="1700" placeholder="Ej: 1700">
             </div>
             <div class="input-group">
-                <label>Inflación Renta (%/año)</label>
-                <input type="number" id="inflacionRenta" value="3" step="0.1">
+                <label>Inflación Renta (%/año) <span style="color: #666;">· Cuánto sube renta</span></label>
+                <input type="number" id="inflacionRenta" value="3" step="0.1" placeholder="Ej: 3">
             </div>
             <div class="input-group">
                 <label>Tasa Impuestos (%)</label>
@@ -581,6 +641,100 @@
 
     <script>
         let chart, chartCostos;
+
+        const presets = {
+            default: {
+                precioCasa: 249000,
+                downPayment: 50000,
+                tasaHipoteca: 6.5,
+                apreciacionCasa: 3.5,
+                propertyTax: 1.2,
+                seguroCasa: 1500,
+                hoaMantenimiento: 200,
+                closingCosts: 3,
+                retornoAcciones: 10,
+                rentaMensual: 1700,
+                inflacionRenta: 3,
+                tasaImpuestos: 24
+            },
+            barato: {
+                precioCasa: 150000,
+                downPayment: 30000,
+                tasaHipoteca: 6.0,
+                apreciacionCasa: 3.0,
+                propertyTax: 0.8,
+                seguroCasa: 1000,
+                hoaMantenimiento: 100,
+                closingCosts: 2.5,
+                retornoAcciones: 10,
+                rentaMensual: 1200,
+                inflacionRenta: 3,
+                tasaImpuestos: 22
+            },
+            caro: {
+                precioCasa: 500000,
+                downPayment: 100000,
+                tasaHipoteca: 7.0,
+                apreciacionCasa: 4.0,
+                propertyTax: 1.5,
+                seguroCasa: 2500,
+                hoaMantenimiento: 400,
+                closingCosts: 3.5,
+                retornoAcciones: 10,
+                rentaMensual: 3000,
+                inflacionRenta: 3.5,
+                tasaImpuestos: 32
+            },
+            bajista: {
+                precioCasa: 249000,
+                downPayment: 50000,
+                tasaHipoteca: 7.5,
+                apreciacionCasa: 2.0,
+                propertyTax: 1.2,
+                seguroCasa: 1500,
+                hoaMantenimiento: 200,
+                closingCosts: 3,
+                retornoAcciones: 6,
+                rentaMensual: 1700,
+                inflacionRenta: 4,
+                tasaImpuestos: 24
+            },
+            optimista: {
+                precioCasa: 249000,
+                downPayment: 50000,
+                tasaHipoteca: 5.5,
+                apreciacionCasa: 5.0,
+                propertyTax: 1.2,
+                seguroCasa: 1500,
+                hoaMantenimiento: 200,
+                closingCosts: 3,
+                retornoAcciones: 12,
+                rentaMensual: 1700,
+                inflacionRenta: 2,
+                tasaImpuestos: 24
+            }
+        };
+
+        function cargarPreset(nombre) {
+            const preset = presets[nombre];
+            if (!preset) return;
+            
+            // Cargar todos los valores
+            Object.keys(preset).forEach(key => {
+                const input = document.getElementById(key);
+                if (input) {
+                    input.value = preset[key];
+                    // Efecto visual
+                    input.style.background = 'rgba(94, 184, 255, 0.2)';
+                    setTimeout(() => {
+                        input.style.background = '';
+                    }, 300);
+                }
+            });
+            
+            // Recalcular
+            actualizarCalculos();
+        }
 
         function toggleBreakdown() {
             const content = document.getElementById('breakdownContent');
@@ -779,6 +933,18 @@
         }
 
         function actualizarCalculos() {
+            // Indicador visual de cálculo
+            const veredicto = document.getElementById('veredicto');
+            veredicto.style.opacity = '0.5';
+            veredicto.innerHTML = '<h3>⚙️ Recalculando...</h3>';
+            
+            // Delay mínimo para feedback visual
+            setTimeout(() => {
+                calcularResultados();
+            }, 50);
+        }
+
+        function calcularResultados() {
             const precio = parseFloat(document.getElementById('precioCasa').value);
             const down = parseFloat(document.getElementById('downPayment').value);
             const tasa = parseFloat(document.getElementById('tasaHipoteca').value);
@@ -1041,6 +1207,11 @@
                     }
                 }
             });
+            
+            // Restaurar opacidad del veredicto después de calcular
+            setTimeout(() => {
+                document.getElementById('veredicto').style.opacity = '1';
+            }, 100);
         }
 
         // Event listeners
