@@ -270,6 +270,90 @@
             display: block;
         }
 
+        .timeline-comparison {
+            margin-bottom: 40px;
+        }
+
+        .timeline-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .timeline-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 25px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .timeline-card.winner {
+            border-color: #5eb8ff;
+            background: rgba(94, 184, 255, 0.05);
+        }
+
+        .timeline-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #c8a96e;
+        }
+
+        .comparison-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .comparison-row:last-child {
+            border-bottom: none;
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(94, 184, 255, 0.3);
+            font-weight: 500;
+        }
+
+        .comparison-label {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .comparison-value {
+            font-weight: 500;
+        }
+
+        .comparison-value.casa {
+            color: #c8a96e;
+        }
+
+        .comparison-value.acciones {
+            color: #5eb8ff;
+        }
+
+        .explanation {
+            background: rgba(94, 184, 255, 0.05);
+            border-left: 4px solid #5eb8ff;
+            padding: 20px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .key-insight {
+            background: rgba(200, 169, 110, 0.1);
+            border: 1px solid #c8a96e;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .key-insight h4 {
+            color: #c8a96e;
+            margin-bottom: 10px;
+        }
+
         footer {
             text-align: center;
             padding: 40px 20px;
@@ -361,6 +445,21 @@
 
         <div id="veredicto" class="winner">
             <h3>Calculando...</h3>
+        </div>
+
+        <div class="timeline-comparison">
+            <h2 class="section-title">🔍 ¿Por Qué Gana Acciones? Explicación Visual</h2>
+            
+            <div class="key-insight">
+                <h4>💡 La Clave: Interés Compuesto vs Equity Building</h4>
+                <p>Con <strong>casa</strong>: Pagas ~$2,700/mes pero $1,000+ se va en intereses, taxes, seguro y mantenimiento (dinero que NUNCA recuperas).</p>
+                <p>Con <strong>acciones</strong>: Inviertes el down payment + la diferencia mensual. TODO tu dinero trabaja para ti al 10% anual compuesto.</p>
+            </div>
+
+            <div id="timeline10" class="timeline-grid"></div>
+            <div id="timeline15" class="timeline-grid"></div>
+            <div id="timeline20" class="timeline-grid"></div>
+            <div id="timeline30" class="timeline-grid"></div>
         </div>
 
         <div class="results">
@@ -584,6 +683,96 @@
             };
         }
 
+        function generarComparacionTimeline(anos, precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, closingCosts, pagoMensualCasa, rentaInicial, inflacionRenta, retorno) {
+            const eq = calcularEquity(precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, anos);
+            const acc = calcularAcciones(down, closingCosts, pagoMensualCasa, rentaInicial, inflacionRenta, retorno, anos);
+            
+            const ganador = acc.patrimonioNeto > eq.equity ? 'acciones' : 'casa';
+            const diferencia = Math.abs(acc.patrimonioNeto - eq.equity);
+            
+            // Calcular totales pagados
+            const pagosTotalesCasa = pagoMensualCasa * 12 * anos;
+            const rentaPromedio = rentaInicial * Math.pow(1 + inflacionRenta / 100, anos / 2);
+            
+            return `
+                <div class="timeline-card ${ganador === 'acciones' ? 'winner' : ''}">
+                    <h4>🏠 Casa - ${anos} años</h4>
+                    <div class="comparison-row">
+                        <span class="comparison-label">Inversión Inicial</span>
+                        <span class="comparison-value casa">${formatCurrency(down + closingCosts)}</span>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-label">Pagos Totales</span>
+                        <span class="comparison-value casa">${formatCurrency(pagosTotalesCasa)}</span>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-label">Costos Hundidos</span>
+                        <span class="comparison-value casa">${formatCurrency(eq.costosTotales + eq.totalInteresesPagados)}</span>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-label">Valor Casa</span>
+                        <span class="comparison-value casa">${formatCurrency(eq.valorCasa)}</span>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-label">Balance Hipoteca</span>
+                        <span class="comparison-value casa">-${formatCurrency(eq.balance)}</span>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-label"><strong>Patrimonio Neto</strong></span>
+                        <span class="comparison-value casa"><strong>${formatCurrency(eq.equity)}</strong></span>
+                    </div>
+                    <div class="explanation">
+                        De tus ${formatCurrency(pagosTotalesCasa)} pagados, ${formatCurrency(eq.costosTotales + eq.totalInteresesPagados)} (${((eq.costosTotales + eq.totalInteresesPagados) / pagosTotalesCasa * 100).toFixed(0)}%) se fue en intereses, taxes, seguro y mantenimiento. <strong>Dinero que nunca recuperas.</strong>
+                    </div>
+                </div>
+                
+                <div class="timeline-card ${ganador === 'acciones' ? 'winner' : ''}">
+                    <h4>📈 Acciones - ${anos} años</h4>
+                    <div class="comparison-row">
+                        <span class="comparison-label">Inversión Inicial</span>
+                        <span class="comparison-value acciones">${formatCurrency(down + closingCosts)}</span>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-label">Ahorro Invertido</span>
+                        <span class="comparison-value acciones">${formatCurrency(acc.totalInvertido - (down + closingCosts))}</span>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-label">Total Invertido</span>
+                        <span class="comparison-value acciones">${formatCurrency(acc.totalInvertido)}</span>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-label">Retorno Generado</span>
+                        <span class="comparison-value acciones">+${formatCurrency(acc.valorFinal - acc.totalInvertido)}</span>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-label">Renta Pagada</span>
+                        <span class="comparison-value acciones">${formatCurrency(acc.totalRentaPagada)}</span>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-label"><strong>Patrimonio Neto</strong></span>
+                        <span class="comparison-value acciones"><strong>${formatCurrency(acc.patrimonioNeto)}</strong></span>
+                    </div>
+                    <div class="explanation">
+                        Invertiste ${formatCurrency(acc.totalInvertido)} → Generó ${formatCurrency(acc.valorFinal - acc.totalInvertido)} en retorno (${(((acc.valorFinal - acc.totalInvertido) / acc.totalInvertido) * 100).toFixed(0)}% ganancia). <strong>Tu dinero trabajó para ti.</strong> Sí, pagaste ${formatCurrency(acc.totalRentaPagada)} en renta, pero aún así terminaste con más.
+                    </div>
+                </div>
+                
+                <div class="timeline-card">
+                    <h4>⚖️ Diferencia - ${anos} años</h4>
+                    <div class="comparison-row">
+                        <span class="comparison-label"><strong>${ganador === 'acciones' ? '📈 Acciones gana' : '🏠 Casa gana'}</strong></span>
+                        <span class="comparison-value ${ganador}"><strong>${formatCurrency(diferencia)}</strong></span>
+                    </div>
+                    <div class="explanation">
+                        ${ganador === 'acciones' 
+                            ? `El interés compuesto al ${retorno}% superó la apreciación de la casa (${apreciacion}%) y compensó la renta pagada. La clave: en casa, gran parte de tu pago mensual se va en costos que no construyen patrimonio.`
+                            : `La apreciación de la casa + el equity building superaron el retorno de acciones menos la renta pagada. Esto es raro con los números default — probablemente ajustaste las tasas.`
+                        }
+                    </div>
+                </div>
+            `;
+        }
+
         function actualizarCalculos() {
             const precio = parseFloat(document.getElementById('precioCasa').value);
             const down = parseFloat(document.getElementById('downPayment').value);
@@ -664,6 +853,12 @@
                 </div>
             `;
             document.getElementById('veredicto').innerHTML = veredictoHTML;
+
+            // Actualizar comparaciones timeline
+            document.getElementById('timeline10').innerHTML = generarComparacionTimeline(10, precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, closingCostsTotal, pagoMensualTotal, renta, inflacionRenta, retorno);
+            document.getElementById('timeline15').innerHTML = generarComparacionTimeline(15, precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, closingCostsTotal, pagoMensualTotal, renta, inflacionRenta, retorno);
+            document.getElementById('timeline20').innerHTML = generarComparacionTimeline(20, precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, closingCostsTotal, pagoMensualTotal, renta, inflacionRenta, retorno);
+            document.getElementById('timeline30').innerHTML = generarComparacionTimeline(30, precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, closingCostsTotal, pagoMensualTotal, renta, inflacionRenta, retorno);
 
             // Actualizar gráficas
             actualizarGraficas(precio, down, tasa, apreciacion, propertyTax, seguro, hoaMant, closingCostsTotal, pagoMensualTotal, retorno, renta, inflacionRenta);
